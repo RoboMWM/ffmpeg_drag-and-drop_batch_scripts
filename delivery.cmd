@@ -5,6 +5,7 @@ REM Generic compression script. Uses SVT-AV1 codec by default.
 if not defined VIDEO_ENCODER    set "VIDEO_ENCODER=libsvtav1 -crf 37 -preset 4"
 if not defined AUDIO_ENCODER    set "AUDIO_ENCODER=copy"
 if not defined OUTPUT_SUFFIX    set "OUTPUT_SUFFIX=_av1"
+if not defined OUTPUT_DIR       set "OUTPUT_DIR="
 
 :loop
 REM Check if we have no more files to process
@@ -26,6 +27,13 @@ if "%FINAL_EXT%"=="" set "FINAL_EXT=%~x1"
 
 echo Output: "%~n1%OUTPUT_SUFFIX%%FINAL_EXT%"
 
+REM Determine output directory: use OUTPUT_DIR if set, otherwise use source file's directory
+if "%OUTPUT_DIR%"=="" (
+    set "OUTPUT_PATH=%~dp1"
+) else (
+    set "OUTPUT_PATH=%OUTPUT_DIR%"
+)
+
 set "MOV_FLAGS="
 if /i "%FINAL_EXT%"==".mp4" set "MOV_FLAGS=-movflags +faststart"
 
@@ -33,7 +41,7 @@ ffmpeg.exe -hide_banner -y -i "%~1" -map_metadata 0 ^
 -c:v %VIDEO_ENCODER% ^
 -c:a %AUDIO_ENCODER% ^
 %MOV_FLAGS% ^
-"%~dp1%~n1%OUTPUT_SUFFIX%%FINAL_EXT%"
+"%OUTPUT_PATH%%~n1%OUTPUT_SUFFIX%%FINAL_EXT%"
 
 if %errorlevel% neq 0 goto :error
 

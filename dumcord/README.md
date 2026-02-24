@@ -11,3 +11,7 @@ I use h265/HEVC with libx265 on medium preset as this is faster and better quali
 - libx264 | Preset: veryslow | Time: 153s | VMAF: 43.471596 
 - libx265 | Preset: medium | Time: 89s | VMAF: 52.94434 
 - libx265 | Preset: slow | Time: 235s | VMAF: 59.50313 
+
+## Images
+
+`ffmpeg -i D:\Downloads\IMG_2362.JPG -vf "noise=alls=18:allf=t+u,curves=all='0/0 0.2/0 1/1'" -pix_fmt yuv420p oke%03d.jpg`
