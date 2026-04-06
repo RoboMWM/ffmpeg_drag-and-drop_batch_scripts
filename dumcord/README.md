@@ -1,7 +1,5 @@
 # Dumcord 10MB compression scripts
 
-CPU encoding always yields better quality than hardware, even with hevc_nvenc 2 pass at p7 preset. At 10MB limit, nvenc quality does not look good.
-
 I have it dump the output here so it doesn't get lost in my source folder.
 
 ## Uses libx265 medium by default
@@ -10,8 +8,15 @@ I use h265/HEVC with libx265 on medium preset as this is faster and better quali
 
 - libx264 | Preset: veryslow | Time: 153s | VMAF: 43.471596 
 - libx265 | Preset: medium | Time: 89s | VMAF: 52.94434 
-- libx265 | Preset: slow | Time: 235s | VMAF: 59.50313 
+- libx265 | Preset: slow | Time: 235s | VMAF: 59.50313
+
+## Why not other codecs?
+
+CPU encoding always yields better quality than hardware, even with `hevc_nvenc` 2 pass at `p7` preset. At 10MB limit, `nvenc` quality does not look good.
+
+Dumcord on iOS does not appear to support VP9 or AV1 (webm or otherwise).
 
 ## Images
 
-`ffmpeg -i D:\Downloads\IMG_2362.JPG -vf "noise=alls=18:allf=t+u,curves=all='0/0 0.2/0 1/1'" -pix_fmt yuv420p oke%03d.jpg`
+Crushes dark areas for better compression:
+`ffmpeg -i input.JPG -vf "noise=alls=18:allf=t+u,curves=all='0/0 0.2/0 1/1'" -pix_fmt yuv420p output%03d.jpg`
