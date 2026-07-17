@@ -1,6 +1,7 @@
 @echo off
 REM 2 pass encoding with 10MB dumcord limit
 
+if "%TARGET_SIZE_BYTES%"=="" set "TARGET_SIZE_BYTES=10200000"
 if "%TARGET_SIZE%"==""      set "TARGET_SIZE=82000000"
 if "%AUDIO_BITRATE%"==""    set "AUDIO_BITRATE=96000"
 if "%OVERHEAD%"==""         set "OVERHEAD=10000"
@@ -31,18 +32,28 @@ echo =========================================================
 
 REM GET DURATION
 REM using CSV output to avoid "=" character issues
-set "seconds="
-for /f "delims=" %%a in ('ffprobe -v error -select_streams v:0 -show_entries format^=duration -of csv^=p^=0 "%~1"') do (
-    for /f "tokens=1 delims=." %%b in ("%%a") do set "seconds=%%b"
-)
+@REM set "seconds="
+@REM for /f "delims=" %%a in ('ffprobe -v error -select_streams v:0 -show_entries format^=duration -of csv^=p^=0 "%~1"') do (
+@REM     for /f "tokens=1 delims=." %%b in ("%%a") do set "seconds=%%b"
+@REM )
+
+@REM if "%seconds%"=="" set seconds=1
+@REM if %seconds% EQU 0 set seconds=1
+
+@REM echo Duration: ~%seconds% seconds.
+
+REM GET EXACT DURATION (including decimals)
+for /f "delims=" %%a in ('ffprobe -v error -select_streams v:0 -show_entries format^=duration -of default^=noprint_wrappers^=1:nokey^=1 "%~1"') do set "seconds=%%a"
 
 if "%seconds%"=="" set seconds=1
-if %seconds% EQU 0 set seconds=1
+echo Exact Duration: %seconds% seconds.
 
-echo Duration: ~%seconds% seconds.
+REM Use PowerShell to handle the floating-point math accurately
+REM Formula: ((TargetBytes * 8) / DurationInSeconds) - AudioBitrate
+for /f %%A in ('powershell -NoProfile -Command "[math]::Floor(((%TARGET_SIZE_BYTES% * 8) / %seconds%) - %AUDIO_BITRATE%)"') do set "video_bitrate=%%A"
 
-set /a total_bitrate=TARGET_SIZE / seconds
-set /a video_bitrate=total_bitrate - AUDIO_BITRATE - OVERHEAD
+@REM set /a total_bitrate=TARGET_SIZE / seconds
+@REM set /a video_bitrate=total_bitrate - AUDIO_BITRATE - OVERHEAD
 
 echo Target Video Bitrate: %video_bitrate%
 echo Audio Bitrate: %AUDIO_BITRATE%
