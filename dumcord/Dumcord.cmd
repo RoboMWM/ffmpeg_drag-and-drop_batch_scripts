@@ -5,6 +5,10 @@ if "%TARGET_SIZE_BYTES%"=="" set "TARGET_SIZE_BYTES=10200000"
 if "%TARGET_SIZE%"==""      set "TARGET_SIZE=82000000"
 if "%AUDIO_BITRATE%"==""    set "AUDIO_BITRATE=96000"
 if "%OVERHEAD%"==""         set "OVERHEAD=10000"
+if "%DUMCORD_OUTPUT_DIR%"=="" set "DUMCORD_OUTPUT_DIR=D:\Dumcord_Output"
+if "%COPY_TO_CLIPBOARD%"=="" set "COPY_TO_CLIPBOARD=1"
+if "%AUTO_OPEN_EXPLORER%"=="" set "AUTO_OPEN_EXPLORER=1"
+if "%USE_SOURCE_FOLDER_OUTPUT%"=="" set "USE_SOURCE_FOLDER_OUTPUT=0"
 REM if "%VIDEO_ENCODER%"==""    set "VIDEO_ENCODER=libx264 -preset veryslow -x264-params open-gop=1"
 REM iOS requires -tag:v hvc1
 if "%VIDEO_ENCODER%"==""    set "VIDEO_ENCODER=libx265 -preset medium -tag:v hvc1 -x265-params open-gop=1"
@@ -19,6 +23,8 @@ if /i "%OUTPUT_EXT%"==".mp4" (
     set "MP4_TIMING_OPTIONS=-video_track_timescale 90000"
 )
 REM set "VIDEO_FILTERS=-filter:v "crop=in_h:in_h:(in_w-out_w)/2:(in_h-out_h)/2:0""
+
+if not exist "%DUMCORD_OUTPUT_DIR%" mkdir "%DUMCORD_OUTPUT_DIR%"
 
 :loop
 REM Check if we have no more files to process
@@ -58,7 +64,15 @@ for /f %%A in ('powershell -NoProfile -Command "[math]::Floor(((%TARGET_SIZE_BYT
 echo Target Video Bitrate: %video_bitrate%
 echo Audio Bitrate: %AUDIO_BITRATE%
 if defined VIDEO_FILTERS echo Filters Applied: %VIDEO_FILTERS%
+if /i "%USE_SOURCE_FOLDER_OUTPUT%"=="1" (
+    set "OUTPUT_FILE=%~dpn1%OUTPUT_SUFFIX%%OUTPUT_EXT%"
+) else (
+    set "OUTPUT_FILE=%DUMCORD_OUTPUT_DIR%\%~n1%OUTPUT_SUFFIX%%OUTPUT_EXT%"
+)
+echo Output File: %OUTPUT_FILE%
 echo.
+
+del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
 
 echo --- Running Pass 1 ---
 ffmpeg -hide_banner -y -i "%~1" ^
@@ -77,11 +91,21 @@ ffmpeg -hide_banner -y -i "%~1" ^
 -pass 2 -passlogfile "ffmpeg2pass" ^
 %MP4_TIMING_OPTIONS% ^
 %MOV_FLAGS% ^
--c:a %AUDIO_ENCODER% -b:a %AUDIO_BITRATE% "%~n1%OUTPUT_SUFFIX%%OUTPUT_EXT%"
+-c:a %AUDIO_ENCODER% -b:a %AUDIO_BITRATE% "%OUTPUT_FILE%"
 
 if %errorlevel% neq 0 goto :error
 
 del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
+
+if /i "%COPY_TO_CLIPBOARD%"=="1" (
+    powershell -NoProfile -Command "Set-Clipboard -Value '%OUTPUT_FILE%'"
+    echo Clipboard updated with: %OUTPUT_FILE%
+)
+
+if /i "%AUTO_OPEN_EXPLORER%"=="1" (
+    explorer.exe /select,"%OUTPUT_FILE%"
+    echo Opened Explorer for the encoded file.
+)
 
 echo [SUCCESS] "%~nx1" finished.
 echo.
