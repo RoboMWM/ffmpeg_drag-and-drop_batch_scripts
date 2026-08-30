@@ -1,8 +1,8 @@
 @echo off
-REM 2 pass encoding with 10MB dumcord limit
+REM 2 pass encoding with 20MB dumcord limit
 
-if "%TARGET_SIZE_BYTES%"=="" set "TARGET_SIZE_BYTES=10200000"
-if "%TARGET_SIZE%"==""      set "TARGET_SIZE=82000000"
+if "%TARGET_SIZE_BYTES%"=="" set "TARGET_SIZE_BYTES=20400000"
+if "%TARGET_SIZE%"==""      set "TARGET_SIZE=164000000"
 if "%AUDIO_BITRATE%"==""    set "AUDIO_BITRATE=96000"
 if "%OVERHEAD%"==""         set "OVERHEAD=10000"
 if "%DUMCORD_OUTPUT_DIR%"=="" set "DUMCORD_OUTPUT_DIR=D:\Dumcord_Output"

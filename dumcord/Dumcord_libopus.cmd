@@ -1,5 +1,5 @@
 @echo off
-title 10MB Opus Audio Compressor
+title 20MB Opus Audio Compressor
 
 :: Check if a file was dropped
 if "%~1"=="" (
@@ -18,7 +18,7 @@ goto loop
 :: Subroutine to process each file
 :process_file
 set "INPUT=%~1"
-set "OUTPUT=%~dpn1_10MB.opus"
+set "OUTPUT=%~dpn1_20MB.opus"
 
 echo ---------------------------------------------------
 echo Processing: "%INPUT%"
@@ -32,8 +32,8 @@ if "%DURATION%"=="" (
     exit /b
 )
 
-:: 2. Use PowerShell to do the math (76000 / Duration) to target 9.5MB
-for /f "delims=" %%B in ('powershell -NoProfile -Command "[math]::Floor(76000 / %DURATION%)"') do set "BITRATE=%%B"
+:: 2. Use PowerShell to do the math (152000 / Duration) to target 19MB
+for /f "delims=" %%B in ('powershell -NoProfile -Command "[math]::Floor(152000 / %DURATION%)"') do set "BITRATE=%%B"
 
 :: 3. Safeguards: Cap bitrate at 256k (max needed) and 8k (absolute minimum)
 if %BITRATE% GTR 256 (

@@ -1,7 +1,7 @@
 @echo off
-REM 2 pass encoding with 10MB dumcord limit
+REM 2 pass encoding with 20MB dumcord limit
 
-if "%TARGET_SIZE%"==""      set "TARGET_SIZE=82000000"
+if "%TARGET_SIZE%"==""      set "TARGET_SIZE=164000000"
 if "%AUDIO_BITRATE%"==""    set "AUDIO_BITRATE=0"
 if "%OVERHEAD%"==""         set "OVERHEAD=10000"
 REM if "%VIDEO_ENCODER%"==""    set "VIDEO_ENCODER=libx264 -preset veryslow -x264-params open-gop=1"

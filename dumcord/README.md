@@ -1,4 +1,4 @@
-# Dumcord 10MB compression scripts
+# Dumcord 20MB compression scripts
 
 I have it dump the output here so it doesn't get lost in my source folder.
 
@@ -12,7 +12,7 @@ I use h265/HEVC with libx265 on medium preset as this is faster and better quali
 
 ## Why not other codecs?
 
-CPU encoding always yields better quality than hardware, even with `hevc_nvenc` 2 pass at `p7` preset. At 10MB limit, `nvenc` quality does not look good.
+CPU encoding always yields better quality than hardware, even with `hevc_nvenc` 2 pass at `p7` preset. At prior 10MB limit, `nvenc` quality does not look good.
 
 Dumcord on iOS does not appear to support VP9 or AV1 (webm or otherwise).
 
