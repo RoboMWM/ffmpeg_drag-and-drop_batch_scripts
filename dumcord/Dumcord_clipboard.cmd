@@ -56,6 +56,7 @@ if "%FILE%"=="" exit /b
 if "%TARGET_SIZE%"==""      set "TARGET_SIZE=164000000"
 if "%AUDIO_BITRATE%"==""    set "AUDIO_BITRATE=96000"
 if "%OVERHEAD%"==""         set "OVERHEAD=10000"
+if "%DUMCORD_OUTPUT_DIR%"=="" set "DUMCORD_OUTPUT_DIR=D:\Dumcord_Output"
 REM if "%VIDEO_ENCODER%"==""    set "VIDEO_ENCODER=libx264 -preset veryslow -x264-params open-gop=1"
 REM iOS requires -tag:v hvc1
 if "%VIDEO_ENCODER%"==""    set "VIDEO_ENCODER=libx265 -preset medium -tag:v hvc1 -x265-params open-gop=1"
@@ -100,7 +101,7 @@ echo --- Running Pass 1 ---
 ffmpeg -hide_banner -y -i "%FILE%" ^
 -c:v %VIDEO_ENCODER% -b:v %video_bitrate% %VIDEO_TIMING_OPTIONS% ^
 %VIDEO_FILTERS% %VIDEO_FILTERS_P1% ^
--pass 1 -passlogfile "ffmpeg2pass" ^
+-pass 1 -passlogfile "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass" ^
 -an -f null NUL
 
 if %errorlevel% neq 0 goto :error
@@ -110,14 +111,14 @@ echo --- Running Pass 2 ---
 ffmpeg -hide_banner -y -i "%FILE%" ^
 -c:v %VIDEO_ENCODER% -b:v %video_bitrate% %VIDEO_TIMING_OPTIONS% ^
 %VIDEO_FILTERS% %VIDEO_FILTERS_P2% ^
--pass 2 -passlogfile "ffmpeg2pass" ^
+-pass 2 -passlogfile "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass" ^
 %MP4_TIMING_OPTIONS% ^
 %MOV_FLAGS% ^
 -c:a %AUDIO_ENCODER% -b:a %AUDIO_BITRATE% "%~dpn1%OUTPUT_SUFFIX%%OUTPUT_EXT%"
 
 if %errorlevel% neq 0 goto :error
 
-del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
+del /q "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.log" "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.mbtree" 2>nul
 
 echo [SUCCESS] "%~nx1" finished.
 echo.
@@ -130,6 +131,6 @@ echo #########################################################
 echo CRITICAL ERROR DETECTED!
 echo Encoding failed on file: "%~nx1"
 echo #########################################################
-del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
+del /q "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.log" "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.mbtree" 2>nul
 pause
 exit /b 1

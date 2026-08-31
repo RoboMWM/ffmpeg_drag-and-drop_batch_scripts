@@ -72,13 +72,13 @@ if /i "%USE_SOURCE_FOLDER_OUTPUT%"=="1" (
 echo Output File: %OUTPUT_FILE%
 echo.
 
-del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
+del /q "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.log" "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.mbtree" 2>nul
 
 echo --- Running Pass 1 ---
 ffmpeg -hide_banner -y -i "%~1" ^
 -c:v %VIDEO_ENCODER% -b:v %video_bitrate% %VIDEO_TIMING_OPTIONS% ^
 %VIDEO_FILTERS% %VIDEO_FILTERS_P1% ^
--pass 1 -passlogfile "ffmpeg2pass" ^
+-pass 1 -passlogfile "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass" ^
 -an -f null NUL
 
 if %errorlevel% neq 0 goto :error
@@ -88,24 +88,22 @@ echo --- Running Pass 2 ---
 ffmpeg -hide_banner -y -i "%~1" ^
 -c:v %VIDEO_ENCODER% -b:v %video_bitrate% %VIDEO_TIMING_OPTIONS% ^
 %VIDEO_FILTERS% %VIDEO_FILTERS_P2% ^
--pass 2 -passlogfile "ffmpeg2pass" ^
+-pass 2 -passlogfile "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass" ^
 %MP4_TIMING_OPTIONS% ^
 %MOV_FLAGS% ^
 -c:a %AUDIO_ENCODER% -b:a %AUDIO_BITRATE% "%OUTPUT_FILE%"
 
 if %errorlevel% neq 0 goto :error
 
-del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
+del /q "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.log" "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.mbtree" 2>nul
 
 if /i "%COPY_TO_CLIPBOARD%"=="1" (
     powershell -NoProfile -Command "Set-Clipboard -Value '%OUTPUT_FILE%'"
     echo Clipboard updated with: %OUTPUT_FILE%
 )
 
-if /i "%AUTO_OPEN_EXPLORER%"=="1" (
-    explorer.exe /select,"%OUTPUT_FILE%"
-    echo Opened Explorer for the encoded file.
-)
+REM Track last output for explorer at end
+set "LAST_OUTPUT_FILE=%OUTPUT_FILE%"
 
 echo [SUCCESS] "%~nx1" finished.
 echo.
@@ -121,7 +119,7 @@ echo #########################################################
 echo CRITICAL ERROR DETECTED!
 echo Encoding failed on file: "%~nx1"
 echo #########################################################
-del /q "ffmpeg2pass-0.log" "ffmpeg2pass-0.mbtree" 2>nul
+del /q "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.log" "%DUMCORD_OUTPUT_DIR%\ffmpeg2pass-0.mbtree" 2>nul
 pause
 exit /b 1
 
@@ -130,5 +128,10 @@ echo.
 echo =========================================================
 echo All files processed successfully.
 echo =========================================================
+
+if /i "%AUTO_OPEN_EXPLORER%"=="1" if defined LAST_OUTPUT_FILE (
+    explorer.exe /select,"%LAST_OUTPUT_FILE%"
+)
+
 pause
 exit /b 0
